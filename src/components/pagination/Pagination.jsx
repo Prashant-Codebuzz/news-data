@@ -11,10 +11,35 @@ const Pagination = ({ pagination, onPageChange }) => {
         }
     };
 
-    const pageNumbers = [];
-    for (let i = 1; i <= lastPage; i++) {
-        pageNumbers.push(i);
-    }
+    // const pageNumbers = [];
+    // for (let i = 1; i <= lastPage; i++) {
+    //     pageNumbers.push(i);
+    // }
+
+
+
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        const maxVisible = 9;
+        const half = Math.floor(maxVisible / 2);
+
+        let start = Math.max(1, currentPage - half);
+        let end = start + maxVisible - 1;
+
+        if (end > lastPage) {
+            end = lastPage;
+            start = Math.max(1, end - maxVisible + 1);
+        }
+
+        for (let i = start; i <= end; i++) {
+            pageNumbers.push(i);
+        }
+
+        return pageNumbers;
+    };
+
+    const pageNumbers = getPageNumbers();
+
 
     return (
         <>

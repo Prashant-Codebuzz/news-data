@@ -11,9 +11,11 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { formatDate } from '../helper/formatDate';
 
-import { getNewsDataService } from '../services/services';
+import { getMediaStackNewsService } from '../services/services';
 
-const News = () => {
+
+const MediaStackNews = () => {
+
 
 
     const navigate = useNavigate();
@@ -25,88 +27,47 @@ const News = () => {
 
     const [newsLit, setNewsLit] = useState([]);
 
-    const [nextPageToken, setNextPageToken] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        lastPage: 1,
+        limit: 12,
+        total: 0
+    });
 
-
-    const [newsSaved, setNewsSaved] = useState({});
-
-    const handleNewsBookMark = (index) => {
-        setNewsSaved((prev) => ({
-            ...prev,
-            [index]: !prev[index],
-        }));
-    };
-
-
-    // const GetNewsData = async () => {
-    //     setLoader(true);
-
-    //     try {
-    //         const res = await getNewsDataService(nextPageToken, searchQuery);
-    //         console.log(res);
-
-    //         if (res?.status === "success") {
-    //             // setNewsLit(res?.results);
-    //             setNewsLit((prev) => [...prev, ...res.results]);
-    //             setNextPageToken(res.nextPage);
-    //         } else {
-    //             setError(res?.results?.message);
-    //         }
-    //     } catch (err) {
-    //         console.error(err);
-    //     } finally {
-    //         setLoader(false);
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     GetNewsData();
-    // }, [searchQuery])
-
-
-    // Fetch for new search or first load
-    const fetchInitialNews = async () => {
+    const GetNewsData = async (page = currentPage) => {
         setLoader(true);
+
+
+
         try {
-            const res = await getNewsDataService(null, searchQuery);
-            if (res?.status === "success") {
-                setNewsLit(res.results); // REPLACE, not append
-                setNextPageToken(res.nextPage);
-            } else {
-                setError(res?.results?.message);
+            const res = await getMediaStackNewsService(page, searchQuery);
+            console.log(res);
+
+            // if (res?.status === 200) {
+            setNewsLit(res?.data);
+            setPagination({
+                currentPage: page,
+                lastPage: Math.ceil(res.pagination?.total / 12),
+                limit: 12,
+                total: res.pagination?.total
+            });
+            // } 
+            // else {
+
+            if (res?.error?.code === "usage_limit_reached") {
+                setError(res?.error?.message);
             }
         } catch (err) {
             console.error(err);
         } finally {
             setLoader(false);
         }
-    };
-
-    // Fetch when clicking "More"
-    const fetchMoreNews = async () => {
-        if (!nextPageToken) return;
-        setLoader(true);
-        try {
-            const res = await getNewsDataService(nextPageToken, searchQuery);
-            if (res?.status === "success") {
-                setNewsLit(prev => [...prev, ...res.results]); // APPEND
-                setNextPageToken(res.nextPage);
-            } else {
-                setError(res?.results?.message);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoader(false);
-        }
-    };
+    }
 
     useEffect(() => {
-        // Reset news when search changes
-        setNewsLit([]);
-        setNextPageToken(null);
-        fetchInitialNews();
-    }, [searchQuery]);
+        GetNewsData(currentPage);
+    }, [searchQuery, currentPage])
 
 
     const filteredNews = newsLit;
@@ -121,16 +82,19 @@ const News = () => {
     return (
         <>
 
-
             <section className='latest_news news'>
                 <div className="container">
 
+                    {/* <div className='d-flex justify-content-center py-3 gap-4'>
+                        <button className={`${selectedSource === 'gnews' ? 'select main_btn login_btn' : 'main_btn login_btn'}`} type='button' onClick={handleGnews}>NewsData</button>
+                        <button className={`${selectedSource === 'newsapi' ? 'select main_btn login_btn' : 'main_btn login_btn'}`} type='button' onClick={handleNewsAPIs}>MediaStack </button>
+                    </div> */}
 
                     <div className="top">
                         <div className="row justify-content-between align-items-center">
                             <div className="col-lg-6">
                                 <h1>
-                                    Latest News
+                                    MediaStack News
                                 </h1>
                             </div>
                             <div className="col-lg-6 d-flex align-items-center justify-content-end">
@@ -180,37 +144,29 @@ const News = () => {
                             }
 
                             {/* {filteredNews?.slice(pagination.from - 1, pagination.to).map((i, index) => ( */}
-                            {filteredNews?.length > 0 &&    
+                            {filteredNews?.length > 0 &&
                                 filteredNews?.map((i, index) => (
                                     <div className="col-lg-4" key={index}>
-                                        <div className={`box h-100 ${newsSaved[index] ? "saved" : ""}`}>
-                                            <div
-                                                className="bookmark_click"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleNewsBookMark(index);
-                                                }}
-                                            />
-
+                                        <div className={`box h-100`}>
                                             <div className="news_image">
                                                 <img
-                                                    src={i.image_url}
-                                                    alt={i.title}
+                                                    src={i.image}
+                                                    alt={i.author}
                                                     className="img-fluid object-fit-cover w-100"
                                                     loader="lazy"
                                                 />
                                             </div>
                                             <div className="info d-flex flex-column flex-grow-1">
                                                 <p className='text-dark fw-600'>
-                                                    {i?.country[0]}
-                                                </p>
-                                                <div className="date d-flex align-items-center">
-                                                    <img src={Date} alt="Date" className="img-fluid me-2" />
-                                                    {formatDate(i.pubDate)}
+                                                    Country : {i?.country}
 
                                                     <span className='mx-1'>|</span>
 
-                                                    <div>{i?.category[0]}</div>
+                                                    Category : {i?.category}
+                                                </p>
+                                                <div className="date d-flex align-items-center">
+                                                    <img src={Date} alt="Date" className="img-fluid me-2" />
+                                                    {formatDate(i.published_at)}
                                                 </div>
 
                                                 <div className="name">
@@ -223,7 +179,7 @@ const News = () => {
                                                     type="button"
                                                     className="news_btn mt-auto"
                                                     onClick={() => {
-                                                        navigate(`/news/detail/${i?.article_id}`, { state: { article: i } })
+                                                        navigate(`/mediastack-news/detail/${i?.article_id}`, { state: { article: i } })
                                                     }}
                                                 >
                                                     Read more
@@ -239,18 +195,17 @@ const News = () => {
                     </div>
 
                     {filteredNews?.length > 0 && (
-                        <div className='my-5 text-center'>
-                            <button
-                                type='button'
-                                className={`main_btn login_btn`}
-                                // onClick={() => GetNewsData(nextPageToken)}
-                                onClick={fetchMoreNews}
-                            >
-                                More
-                            </button>
-                        </div>
+                        // <div className='my-5 text-center'>
+                        //     <button
+                        //         type='button'
+                        //         className={`main_btn login_btn`}
+                        //     // onClick={fetchMoreNews}
+                        //     >
+                        //         More
+                        //     </button>
+                        // </div>
 
-                        // <Pagination pagination={pagination} onPageChange={setCurrentPage} />
+                        <Pagination pagination={pagination} onPageChange={setCurrentPage} />
                     )}
 
                 </div>
@@ -260,4 +215,4 @@ const News = () => {
     )
 }
 
-export default News;
+export default MediaStackNews;

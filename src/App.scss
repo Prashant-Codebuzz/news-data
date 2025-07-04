@@ -91,7 +91,7 @@ a {
   background-color: var(--blue);
   border-radius: 10px;
   padding: 12px 47px;
-  
+
   font-family: var(--dm-sans);
   font-weight: 700;
   font-size: 18px;
@@ -111,7 +111,11 @@ a {
   border: 2px solid var(--blue);
 }
 
-
+.main_btn.active  {
+  background-position: left bottom;
+  color: var(--blue);
+  border: 2px solid var(--blue);
+}
 
 
 
@@ -119,6 +123,8 @@ a {
 
 /* ------ News Start ------ */
 .latest_news {
+  border-top: 2px solid #0402731A;
+
   background-color: #0402730D;
   padding-block: 60px;
 
