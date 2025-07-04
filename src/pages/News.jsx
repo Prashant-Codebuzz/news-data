@@ -38,16 +38,39 @@ const News = () => {
     };
 
 
-    const GetNewsData = async () => {
+    // const GetNewsData = async () => {
+    //     setLoader(true);
+
+    //     try {
+    //         const res = await getNewsDataService(nextPageToken, searchQuery);
+    //         console.log(res);
+
+    //         if (res?.status === "success") {
+    //             // setNewsLit(res?.results);
+    //             setNewsLit((prev) => [...prev, ...res.results]);
+    //             setNextPageToken(res.nextPage);
+    //         } else {
+    //             setError(res?.results?.message);
+    //         }
+    //     } catch (err) {
+    //         console.error(err);
+    //     } finally {
+    //         setLoader(false);
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     GetNewsData();
+    // }, [searchQuery])
+
+
+    // Fetch for new search or first load
+    const fetchInitialNews = async () => {
         setLoader(true);
-
         try {
-            const res = await getNewsDataService(nextPageToken);
-            console.log(res);
-
+            const res = await getNewsDataService(null, searchQuery);
             if (res?.status === "success") {
-                // setNewsLit(res?.results);
-                setNewsLit((prev) => [...prev, ...res.results]);
+                setNewsLit(res.results); // REPLACE, not append
                 setNextPageToken(res.nextPage);
             } else {
                 setError(res?.results?.message);
@@ -57,18 +80,42 @@ const News = () => {
         } finally {
             setLoader(false);
         }
-    }
+    };
+
+    // Fetch when clicking "More"
+    const fetchMoreNews = async () => {
+        if (!nextPageToken) return;
+        setLoader(true);
+        try {
+            const res = await getNewsDataService(nextPageToken, searchQuery);
+            if (res?.status === "success") {
+                setNewsLit(prev => [...prev, ...res.results]); // APPEND
+                setNextPageToken(res.nextPage);
+            } else {
+                setError(res?.results?.message);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoader(false);
+        }
+    };
 
     useEffect(() => {
-        GetNewsData();
-    }, [])
+        // Reset news when search changes
+        setNewsLit([]);
+        setNextPageToken(null);
+        fetchInitialNews();
+    }, [searchQuery]);
 
-    const filteredNews = newsLit.filter(i =>
-        i?.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        i?.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        i?.count?.[0]?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        i?.category?.[0]?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+
+    const filteredNews = newsLit;
+    // .filter(i =>
+    //     i?.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //     i?.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //     i?.count?.[0]?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //     i?.category?.[0]?.toLowerCase().includes(searchQuery.toLowerCase())
+    // );
 
 
     return (
@@ -194,10 +241,10 @@ const News = () => {
                             <button
                                 type='button'
                                 className={`main_btn login_btn`}
-                                onClick={() => GetNewsData(nextPageToken)}
-
+                                // onClick={() => GetNewsData(nextPageToken)}
+                                onClick={fetchMoreNews}
                             >
-                                Next
+                                More
                             </button>
                         </div>
 

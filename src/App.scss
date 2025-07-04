@@ -91,7 +91,7 @@ a {
   background-color: var(--blue);
   border-radius: 10px;
   padding: 12px 47px;
-
+  
   font-family: var(--dm-sans);
   font-weight: 700;
   font-size: 18px;
@@ -100,7 +100,7 @@ a {
   border: 2px solid var(--blue);
   border-right: 0;
   background: linear-gradient(to right, var(--white) 50%, var(--blue) 50%);
-  background-size: 200% 100%;
+  background-size: 201% 100%;
   background-position: right bottom;
   transition: all .2s ease-out;
 }
