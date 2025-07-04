@@ -153,7 +153,7 @@ const CurrentsNews = () => {
                                                     type="button"
                                                     className="news_btn mt-auto"
                                                     onClick={() => {
-                                                        navigate(`/currents-news/detail/${i?.article_id}`, { state: { article: i } })
+                                                        navigate(`/currents-news/detail/${i?.id}`, { state: { article: i } })
                                                     }}
                                                 >
                                                     Read more

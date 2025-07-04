@@ -179,7 +179,7 @@ const MediaStackNews = () => {
                                                     type="button"
                                                     className="news_btn mt-auto"
                                                     onClick={() => {
-                                                        navigate(`/mediastack-news/detail/${i?.article_id}`, { state: { article: i } })
+                                                        navigate(`/mediastack-news/detail/${i?.title}`, { state: { article: i } })
                                                     }}
                                                 >
                                                     Read more
