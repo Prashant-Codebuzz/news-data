@@ -10,7 +10,7 @@ export const Axios = axios.create({
 
 
 export const getNewsDataService = async (nextPage = null, searchQuery = '') => {
-    const url = `/news?apikey=${import.meta.env.VITE_APP_NEWSDATAAPI_KEY}&q=${searchQuery || 'immigration'}&category=tourism,education&country=us,ca,in${nextPage ? `&page=${nextPage}` : ''}`;  
+    const url = `/latest?apikey=${import.meta.env.VITE_APP_NEWSDATAAPI_KEY}&q=${searchQuery || 'immigration'}&category=tourism,education&country=us,ca,in${nextPage ? `&page=${nextPage}` : ''}`;  
 
     try {
         const res = await Axios.get(url);
